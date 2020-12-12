@@ -1,5 +1,5 @@
 from django.urls import reverse
-from posts.models import Group, Post
+from posts.models import Comment, Group, Post
 from .base import PostBaseTestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 
@@ -79,3 +79,42 @@ class PostsCreateFormTests(PostBaseTestCase):
                              reverse('post',
                                      kwargs={'username': self.user.username,
                                              'post_id': self.post.id}))
+
+    def test_create_comment(self):
+        form_data = {
+            'text': 'testcomment',
+            'post': self.post            
+        }
+        comment_count = Comment.objects.count()
+        
+        
+        response = self.authorized_client.post(
+            reverse('add_comment',
+                    kwargs={'username': self.user.username,
+                            'post_id': self.post.id}),
+            data=form_data,
+            follow=True)
+        comment = response.context['comments'][0]
+        if comment_count == 1:
+            comment = response.context['comments'][0]
+            count_comments_response = response.context['comments'].count()
+            self.assertEqual(count_comments_response, 1)
+            self.assertEqual(comment.text, form_data['text'])
+            self.assertEqual(comment.post, self.post)
+            self.assertEqual(comment.author, self.user)
+            self.assertEqual(Comment.objects.count(), comment_count + 1)
+            self.assertRedirects(response,
+                             reverse('post',
+                                     kwargs={'username': self.user.username,
+                                             'post_id': self.post.id}))
+        count_comments_response = response.context['comments'].count()
+        self.assertEqual(count_comments_response, 1)
+        self.assertEqual(Comment.objects.count(), comment_count+1)
+        self.assertEqual(comment.text, form_data['text'])
+        self.assertEqual(comment.post, form_data['post'])
+        self.assertEqual(comment.author, self.user)
+        self.assertRedirects(response,
+                             reverse('post',
+                                     kwargs={'username': self.user.username,
+                                             'post_id': self.post.id}))
+        

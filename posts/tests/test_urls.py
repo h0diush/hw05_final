@@ -2,6 +2,7 @@ from django.test import Client
 from django.contrib.auth import get_user_model
 from .base import PostBaseTestCase
 from django.core.cache import cache
+from django.urls import reverse
 
 
 class PostUrlTest(PostBaseTestCase):
@@ -56,6 +57,14 @@ class PostUrlTest(PostBaseTestCase):
             302,
             'Данная страница не должна быть доступна неавторизованному пользователю')
 
+    def test_comment_posts_anonymous(self):
+        """Данная страница не доступна авторизованному пользователю"""
+        response = self.guest_client.get(reverse('add_comment', kwargs={'username': 'testuser', 'post_id': '1'}))
+        self.assertEquals(
+            response.status_code,
+            302,
+            'Только авторизованный пользователь может оставлять комментарии')
+
     # авторизованный пользователь
 
     def test_posts_new_exists_uthorized_client(self):
@@ -96,13 +105,15 @@ class PostUrlTest(PostBaseTestCase):
             302,
             'Данная страница не должна быть доступна авторизованному пользователю и не атору поста')
 
-    def test_comment_posts(self):
+    def test_comment_posts_authorized_client(self):
         """Данная страница не доступна авторизованному пользователю"""
-        response = self.authorized_client.get('/testuser/1/comment/')
+        response = self.authorized_client.get(reverse('add_comment', kwargs={'username': 'testuser', 'post_id': '1'}))
         self.assertEquals(
             response.status_code,
-            404,
+            200,
             'Только авторизованный пользователь может оставлять комментарии')
+
+    
 
     def test_404(self):
         response = self.guest_client.get('/wdwdad/wdaw/22')

@@ -1,3 +1,4 @@
+from posts.models import Follow, Post
 from django.urls import reverse
 from django import forms
 from .base import PostBaseTestCase
@@ -47,10 +48,12 @@ class PostPagesTest(PostBaseTestCase):
         post_author = response.context.get("page")[0].author
         post_pub_date = response.context.get("page")[0].pub_date
         post_group = response.context.get("page")[0].group
+        post_image = response.context.get("page")[0].image
         self.assertEqual(post_text, self.post.text)
         self.assertEqual(post_author, self.user)
         self.assertEqual(post_pub_date, self.post.pub_date)
         self.assertEqual(post_group, self.group)
+        self.assertEqual(post_image.size, self.uploaded.size)
 
     def test_profile_page_show_correct_context(self):
         """context страницы пользователя"""
@@ -116,3 +119,24 @@ class PostPagesTest(PostBaseTestCase):
             with self.subTest(value=value):
                 form_field = response.context.get('form').fields.get(value)
                 self.assertIsInstance(form_field, expected)
+
+    def test_authorized_client_follow_user(self):
+        count = Follow.objects.count()
+        self.authorized_client.get(reverse('profile_follow', kwargs={'username': 'testuser'}))
+        follow = Follow.objects.create(
+            user=self.user,
+            author=self.user2
+        )
+        follow = Follow.objects.get()
+        self.assertEqual(count+1, Follow.objects.count())
+        self.assertEqual(follow.author, self.user2)
+
+    def test_authorized_client_unfollow_user(self):
+        count = Follow.objects.count()
+        Follow.objects.create(user=self.user, author=self.user2)
+        self.assertEqual(count+1, Follow.objects.count())        
+        self.authorized_client.post(reverse('profile_unfollow', kwargs={'username': 'testuser2'}))
+        self.assertFalse(Follow.objects.exists())
+
+
+    

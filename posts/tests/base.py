@@ -24,6 +24,7 @@ class PostBaseTestCase (TestCase):
     def setUp(self):
         self.guest_client = Client()
         self.user = get_user_model().objects.create_user(username='testuser')
+        self.user2 = get_user_model().objects.create_user(username='testuser2')
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
         small_gif = (b'\x47\x49\x46\x38\x39\x61\x02\x00'
@@ -47,13 +48,7 @@ class PostBaseTestCase (TestCase):
         )
         self.post = Post.objects.get()
 
-        self.comment = Comment.objects.create(
-            text = 'testcomment',
-            post = self.post,
-            author = self.user,
-            created = "01.01.2020"
-        )
-        self.comment = Comment.objects.get()
+        
         
         site = Site.objects.get(pk=4)
         self.flat_about = FlatPage.objects.create(
