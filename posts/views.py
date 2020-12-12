@@ -6,10 +6,12 @@ from .forms import CommentForm, PostForm
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.views.decorators.cache import cache_page
 
 User = get_user_model()
 
 
+@cache_page(20)
 def index(request):
     latest = Post.objects.all()
     paginator = Paginator(latest, 10)
@@ -56,8 +58,8 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     posts_all = author.posts.all()
     count_post = posts_all.count()
-    following = author.following.all()    
-    follow = False
+    following = author.following.all() 
+    follow= False   
     authors = []
     for us in following:
         author_fol = us.user
@@ -72,7 +74,7 @@ def profile(request, username):
         'count_post': count_post,
         'paginator': paginator,
         'page': page,
-        'follow' : follow    
+        'follow': follow
     }
     return render(request, 'profile.html', context)
 
@@ -120,16 +122,8 @@ def add_comment(request, username, post_id):
         comment.post=post
         comment.save()
         return redirect('post', username, post_id)
-    return render(
-        request,
-        "post.html",
-        {
-            'form': form,
-            "post": post,
-            "comments": comments,
-            
-        }
-        )
+    context =  {'form': form, "post": post, "comments": comments}
+    return render(request,"comments.html", context)
    
 @login_required
 def follow_index(request):
@@ -139,8 +133,8 @@ def follow_index(request):
     for us in followings:
         author = us.author
         subscribed_users.add(author)
-    posts = Post.objects.filter(author__in=subscribed_users)
-    paginator = Paginator(posts, 10)
+    post_ALL = Post.objects.filter(author__in=subscribed_users)
+    paginator = Paginator(post_ALL, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     context={
@@ -152,12 +146,11 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-        users_viewing_post = get_object_or_404(User, username=request.user)
-        author_post = get_object_or_404(User, username=username)
-        if users_viewing_post == author_post:
-            return redirect('profile', username)
-        Follow.objects.create(user=users_viewing_post,author=author_post)
+    users_viewing_post = get_object_or_404(User, username=username)
+    if request.user != users_viewing_post:
+        Follow.objects.get_or_create(author=users_viewing_post, user=request.user)
         return redirect('profile', username)
+    return redirect('profile', username)
 
         
 
@@ -165,8 +158,10 @@ def profile_follow(request, username):
 def profile_unfollow(request, username):
     users_viewing_post = get_object_or_404(User, username=request.user)
     author_post = get_object_or_404(User, username=username)
-    follow = Follow.objects.filter(user=users_viewing_post,author=author_post)
-    follow.delete()
+    follow_author = Follow.objects.filter(user=users_viewing_post, author=author_post)
+    follow = Follow.objects.filter(user=users_viewing_post, author=author_post).exists()
+    if follow:
+        follow_author.delete()
     return redirect('profile', username)
 
 
