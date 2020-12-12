@@ -6,12 +6,17 @@
 
     {% include "menu.html" with index=True %}
 
-        <h1>Подписки</h1>
-
+        <h1>Подписки:</h1>
+        {% if foll_count != 0 %}
         {% for post in page %}
             {% include "post_item.html" with post=post %}
         {% endfor %}
-
+        {% else  %}
+        <div class="alert alert-primary" role="alert">
+            У Вас 0 подписок
+          </div>
+        {% endif %}
+        
         {% if page.has_other_pages %}
             {% include "paginator.html" with items=page paginator=paginator%}
         {% endif %}

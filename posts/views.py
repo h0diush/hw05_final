@@ -11,7 +11,7 @@ from django.views.decorators.cache import cache_page
 User = get_user_model()
 
 
-@cache_page(20)
+#@cache_page(20)
 def index(request):
     latest = Post.objects.all()
     paginator = Paginator(latest, 10)
@@ -127,27 +127,19 @@ def add_comment(request, username, post_id):
    
 @login_required
 def follow_index(request):
-    active_user = get_object_or_404(User, username=request.user)
-    followings = active_user.following.all()
-    subscribed_users = set()
-    for us in followings:
-        author = us.author
-        subscribed_users.add(author)
-    post_ALL = Post.objects.filter(author__in=subscribed_users)
-    paginator = Paginator(post_ALL, 10)
+    post_list = Post.objects.filter(author__following__user=request.user)
+    foll_count = post_list.count()
+    paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    context={
-        'page': page,
-        'paginator': paginator,
-        'followings': followings
-    }
-    return render(request, "follow.html", context)
+    context = {'page': page, 'paginator': paginator, 'foll_count':foll_count}
+    return render(
+        request, "follow.html", context)
 
 @login_required
 def profile_follow(request, username):
-    users_viewing_post = get_object_or_404(User, username=username)
-    if request.user != users_viewing_post:
+    users_viewing_post = get_object_or_404(User, username=username)    
+    if request.user.username != users_viewing_post:
         Follow.objects.get_or_create(author=users_viewing_post, user=request.user)
         return redirect('profile', username)
     return redirect('profile', username)
