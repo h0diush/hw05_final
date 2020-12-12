@@ -1,11 +1,14 @@
 from posts.models import Post
 from django.urls import reverse
 from .base import PostBaseTestCase
+from django.core.cache import cache
+
 
 
 class PostPagesTest(PostBaseTestCase):
 
     def test_paginator(self):
+        cache.clear()
         for i in range(15):
             Post.objects.create(
                 text="testtext",

@@ -1,6 +1,7 @@
 from django.test import Client
 from django.contrib.auth import get_user_model
 from .base import PostBaseTestCase
+from django.core.cache import cache
 
 
 class PostUrlTest(PostBaseTestCase):
@@ -95,16 +96,30 @@ class PostUrlTest(PostBaseTestCase):
             302,
             'Данная страница не должна быть доступна авторизованному пользователю и не атору поста')
 
+    def test_comment_posts(self):
+        """Данная страница не доступна авторизованному пользователю"""
+        response = self.authorized_client.get('/testuser/1/comment/')
+        self.assertEquals(
+            response.status_code,
+            404,
+            'Только авторизованный пользователь может оставлять комментарии')
+
+    def test_404(self):
+        response = self.guest_client.get('/wdwdad/wdaw/22')
+        self.assertEqual(response.status_code, 404)
+
     # проверка соответствия шаблонов
     def test_urls_uses_correct_template(self):
         """URL-адрес соответствует шаблону"""
+        cache.clear()
         templates_url_names = {
             'index.html': '/',
             'group.html': '/group/testslug/',
             'new_post.html': '/new/',
             'profile.html': '/testuser/',
             'post.html': '/testuser/1/',
-            'post_edit.html': '/testuser/1/edit/'
+            'post_edit.html': '/testuser/1/edit/',
+            'follow.html': '/follow/'
         }
         for template, reverse_name in templates_url_names.items():
             with self.subTest():

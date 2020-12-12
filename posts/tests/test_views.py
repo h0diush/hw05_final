@@ -1,6 +1,7 @@
 from django.urls import reverse
 from django import forms
 from .base import PostBaseTestCase
+from django.core.cache import cache
 
 
 class PostPagesTest(PostBaseTestCase):
@@ -8,13 +9,16 @@ class PostPagesTest(PostBaseTestCase):
     # Проверяем используемые шаблоны
     def test_posts_uses_correct_template(self):
         """Соответствие URL-адресов HTML-шаблонам"""
+        cache.clear()
         templates_pages_names = {
             'index.html': reverse('index'),
             'group.html': reverse('slug', kwargs={'slug': 'testslug'}),
             'new_post.html': reverse('new_post'),
             'profile.html': reverse('profile', kwargs={'username': 'testuser'}),
             'post.html': reverse('post', kwargs={'username': 'testuser', 'post_id': '1'}),
-            'post_edit.html': reverse('post_edit', kwargs={'username': 'testuser', 'post_id': '1'})
+            'post_edit.html': reverse('post_edit', kwargs={'username': 'testuser', 'post_id': '1'}),
+            'comments.html': reverse('add_comment', kwargs={'username': 'testuser', 'post_id': '1'}),
+            'follow.html': reverse('follow_index'),
         }
         for template, reverse_name in templates_pages_names.items():
             with self.subTest(reverse_name=reverse_name):
@@ -24,13 +28,16 @@ class PostPagesTest(PostBaseTestCase):
     # проверяем context
     def test_homepage_shows_correct_context(self):
         """context главной страницы"""
+        cache.clear()
         response = self.authorized_client.get(reverse('index'))
         post_text = response.context.get('page')[0].text
         post_author = response.context.get('page')[0].author
         post_group = response.context.get('page')[0].group
+        post_image = response.context.get('page')[0].image
         self.assertEqual(post_text, 'testtext')
         self.assertEqual(post_author, self.user)
         self.assertEqual(post_group, PostPagesTest.group)
+        self.assertEqual(post_image.size, self.uploaded.size)
 
     def test_group_page_show_correct_context(self):
         """context страницы с группами"""
@@ -53,10 +60,12 @@ class PostPagesTest(PostBaseTestCase):
         post_author = response.context.get("page")[0].author
         post_pub_date = response.context.get("page")[0].pub_date
         post_group = response.context.get("page")[0].group
+        post_image = response.context.get("page")[0].image
         self.assertEqual(post_text, self.post.text)
         self.assertEqual(post_author, self.user)
         self.assertEqual(post_pub_date, self.post.pub_date)
         self.assertEqual(post_group, self.group)
+        self.assertEqual(post_image.size, self.uploaded.size)
 
     def test_post_page_show_correct_context(self):
         """context страницы поста"""
@@ -70,10 +79,12 @@ class PostPagesTest(PostBaseTestCase):
         post_author = response.context.get("post").author
         post_pub_date = response.context.get("post").pub_date
         post_group = response.context.get("post").group
+        post_image = response.context.get("post").image
         self.assertEqual(post_text, self.post.text)
         self.assertEqual(post_author, self.user)
         self.assertEqual(post_pub_date, self.post.pub_date)
         self.assertEqual(post_group, self.group)
+        self.assertEqual(post_image.size, self.uploaded.size)
 
     def test_new_shows_correct_context(self):
         """context страницы добовления поста"""
@@ -81,6 +92,7 @@ class PostPagesTest(PostBaseTestCase):
         form_fields = {
             'text': forms.fields.CharField,
             'group': forms.fields.ChoiceField,
+            'image': forms.fields.ImageField,
         }
         for value, expected in form_fields.items():
             with self.subTest(value=value):
@@ -98,6 +110,7 @@ class PostPagesTest(PostBaseTestCase):
         form_fields = {
             'text': forms.fields.CharField,
             'group': forms.fields.ChoiceField,
+            'image': forms.fields.ImageField,
         }
         for value, expected in form_fields.items():
             with self.subTest(value=value):
