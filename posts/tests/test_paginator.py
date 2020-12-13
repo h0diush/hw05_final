@@ -4,7 +4,6 @@ from .base import PostBaseTestCase
 from django.core.cache import cache
 
 
-
 class PostPagesTest(PostBaseTestCase):
 
     def test_paginator(self):

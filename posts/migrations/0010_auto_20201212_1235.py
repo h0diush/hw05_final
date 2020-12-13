@@ -12,10 +12,13 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='follow',
-            options={'verbose_name': 'Подписка', 'verbose_name_plural': 'Подписки'},
+            options={
+                'verbose_name': 'Подписка',
+                'verbose_name_plural': 'Подписки'},
         ),
         migrations.AddConstraint(
             model_name='follow',
-            constraint=models.UniqueConstraint(fields=('user', 'author'), name='unique_follow'),
+            constraint=models.UniqueConstraint(
+                fields=('user', 'author'), name='unique_follow'),
         ),
     ]

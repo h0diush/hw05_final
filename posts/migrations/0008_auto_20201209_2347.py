@@ -12,6 +12,9 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='comment',
-            options={'ordering': ['-created'], 'verbose_name': 'Комментарий', 'verbose_name_plural': 'Коментарии'},
+            options={
+                'ordering': ['-created'],
+                'verbose_name': 'Комментарий',
+                'verbose_name_plural': 'Коментарии'},
         ),
     ]

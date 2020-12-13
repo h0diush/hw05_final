@@ -58,8 +58,13 @@ class PostUrlTest(PostBaseTestCase):
             'Данная страница не должна быть доступна неавторизованному пользователю')
 
     def test_comment_posts_anonymous(self):
-        """Данная страница не доступна авторизованному пользователю"""
-        response = self.guest_client.get(reverse('add_comment', kwargs={'username': 'testuser', 'post_id': '1'}))
+        """Данная страница не доступна неавторизованному пользователю"""
+        response = self.guest_client.get(
+            reverse(
+                'add_comment',
+                kwargs={
+                    'username': 'testuser',
+                    'post_id': '1'}))
         self.assertEquals(
             response.status_code,
             302,
@@ -107,13 +112,16 @@ class PostUrlTest(PostBaseTestCase):
 
     def test_comment_posts_authorized_client(self):
         """Данная страница не доступна авторизованному пользователю"""
-        response = self.authorized_client.get(reverse('add_comment', kwargs={'username': 'testuser', 'post_id': '1'}))
+        response = self.authorized_client.get(
+            reverse(
+                'add_comment',
+                kwargs={
+                    'username': 'testuser',
+                    'post_id': '1'}))
         self.assertEquals(
             response.status_code,
             200,
             'Только авторизованный пользователь может оставлять комментарии')
-
-    
 
     def test_404(self):
         response = self.guest_client.get('/wdwdad/wdaw/22')

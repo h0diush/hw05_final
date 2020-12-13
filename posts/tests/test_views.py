@@ -122,21 +122,50 @@ class PostPagesTest(PostBaseTestCase):
 
     def test_authorized_client_follow_user(self):
         count = Follow.objects.count()
-        self.authorized_client.get(reverse('profile_follow', kwargs={'username': 'testuser'}))
+        self.authorized_client.get(
+            reverse(
+                'profile_follow', kwargs={
+                    'username': 'testuser'}))
         follow = Follow.objects.create(
             user=self.user,
             author=self.user2
         )
         follow = Follow.objects.get()
-        self.assertEqual(count+1, Follow.objects.count())
+        self.assertEqual(count + 1, Follow.objects.count())
         self.assertEqual(follow.author, self.user2)
 
     def test_authorized_client_unfollow_user(self):
         count = Follow.objects.count()
         Follow.objects.create(user=self.user, author=self.user2)
-        self.assertEqual(count+1, Follow.objects.count())        
-        self.authorized_client.post(reverse('profile_unfollow', kwargs={'username': 'testuser2'}))
+        self.assertEqual(count + 1, Follow.objects.count())
+        self.authorized_client.post(
+            reverse(
+                'profile_unfollow', kwargs={
+                    'username': 'testuser2'}))
         self.assertFalse(Follow.objects.exists())
 
+    def test_context_follow(self):
+        Follow.objects.create(user=self.user2, author=self.user)
+        response = self.authorized_client2.get(reverse("follow_index"))
+        post_text = response.context.get("post").text
+        post_author = response.context.get("post").author
+        post_pub_date = response.context.get("post").pub_date
+        post_group = response.context.get("post").group
+        post_image = response.context.get("post").image
+        self.assertEqual(post_text, self.post.text)
+        self.assertEqual(post_author, self.user)
+        self.assertEqual(post_pub_date, self.post.pub_date)
+        self.assertEqual(post_group, self.group)
+        self.assertEqual(post_image.size, self.uploaded.size)
 
-    
+    def test_cache_index(self):
+        client = self.authorized_client
+        response = client.get(reverse('index'))
+        content = response.content
+        Post.objects.all().delete()
+        response = client.get(reverse('index'))
+        self.assertEqual(content, response.content, 'Кеширование не работает')
+        cache.clear()
+        response = client.get(reverse('index'))
+        self.assertNotEqual(content, response.content,
+                            'Кеширование неисправно')

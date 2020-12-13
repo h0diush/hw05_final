@@ -33,7 +33,6 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
 SITE_ID = 4
 
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
@@ -101,7 +100,7 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
-} 
+}
 WSGI_APPLICATION = 'yatube.wsgi.application'
 
 
@@ -156,4 +155,4 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media') 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
