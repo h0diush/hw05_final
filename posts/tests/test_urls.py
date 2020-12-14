@@ -18,7 +18,8 @@ class PostUrlTest(PostBaseTestCase):
 
     def test_posts_profile_exists_at_desired_location_anonymous(self):
         """Страница пользователя с постами"""
-        response = self.guest_client.get(reverse('profile', kwargs={'username': 'testuser'}))
+        response = self.guest_client.get(
+            reverse('profile', kwargs={'username': 'testuser'}))
         self.assertEquals(
             response.status_code,
             200,
@@ -26,7 +27,12 @@ class PostUrlTest(PostBaseTestCase):
 
     def test_posts_post_exists_at_desired_location_anonymous(self):
         """Страница пользователя с постами"""
-        response = self.guest_client.get(reverse('post', kwargs={'username': 'testuser', 'post_id': '1'}))
+        response = self.guest_client.get(
+            reverse(
+                'post',
+                kwargs={
+                    'username': 'testuser',
+                    'post_id': '1'}))
         self.assertEquals(
             response.status_code,
             200,
@@ -35,7 +41,8 @@ class PostUrlTest(PostBaseTestCase):
     # неавторизованный пользователь
     def test_posts_group_slug_exists_at_desired_location_anonymous(self):
         """Страница group/test_slug доступна неавторизованному пользователю"""
-        response = self.guest_client.get(reverse('slug', kwargs={'slug': 'testslug'}))
+        response = self.guest_client.get(
+            reverse('slug', kwargs={'slug': 'testslug'}))
         self.assertEquals(
             response.status_code,
             200,
@@ -51,7 +58,12 @@ class PostUrlTest(PostBaseTestCase):
 
     def test_posts_edit_exists_at_desired_location_anonymous(self):
         """Данная страница не доступна неавторизованному пользователю"""
-        response = self.guest_client.get(reverse('post_edit', kwargs={'username': 'testuser', 'post_id': '1'}))
+        response = self.guest_client.get(
+            reverse(
+                'post_edit',
+                kwargs={
+                    'username': 'testuser',
+                    'post_id': '1'}))
         self.assertEquals(
             response.status_code,
             302,
@@ -82,7 +94,8 @@ class PostUrlTest(PostBaseTestCase):
 
     def test_posts_group_slug_authorized_client(self):
         """Страница group/test_slug доступна авторизованному пользователю"""
-        response = self.authorized_client.get(reverse('slug', kwargs={'slug': 'testslug'}))
+        response = self.authorized_client.get(
+            reverse('slug', kwargs={'slug': 'testslug'}))
         self.assertEquals(
             response.status_code,
             200,
@@ -91,7 +104,12 @@ class PostUrlTest(PostBaseTestCase):
     def test_posts_edit_authorized_client_and_author_post(self):
         """Данная страница не доступна неавторизованному пользователю и не автору поста"""
 
-        response = self.authorized_client.get(reverse('post_edit', kwargs={'username': 'testuser', 'post_id': '1'}))
+        response = self.authorized_client.get(
+            reverse(
+                'post_edit',
+                kwargs={
+                    'username': 'testuser',
+                    'post_id': '1'}))
         self.assertEquals(
             response.status_code,
             200,
@@ -102,7 +120,12 @@ class PostUrlTest(PostBaseTestCase):
         author_not_post = Client()
         author = get_user_model().objects.create_user(username='alex')
         author_not_post.force_login(author)
-        response = author_not_post.get(reverse('post_edit', kwargs={'username': 'testuser', 'post_id': '1'}))
+        response = author_not_post.get(
+            reverse(
+                'post_edit',
+                kwargs={
+                    'username': 'testuser',
+                    'post_id': '1'}))
         self.assertEquals(
             response.status_code,
             302,
