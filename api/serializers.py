@@ -22,8 +22,8 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ("first_name", "last_name", "username",)
         model = User
 
-class GroupSerializers(serializers.ModelSerializer):
 
+class GroupSerializers(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = '__all__'
