@@ -5,7 +5,6 @@ from django.conf.urls import handler404, handler500
 from django.conf import settings
 from django.conf.urls.static import static
 
-# эти строки — в самый конец файла
 
 
 handler404 = "posts.views.page_not_found"  # noqa
@@ -25,6 +24,7 @@ urlpatterns = [
     path('about/', include('django.contrib.flatpages.urls')),
     path("auth/", include("users.urls")),
     path("auth/", include("django.contrib.auth.urls")),
+    path("api/", include("api.urls")),
     path("", include("posts.urls")),
 ]
 

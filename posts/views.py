@@ -11,7 +11,7 @@ from django.views.decorators.cache import cache_page
 User = get_user_model()
 
 
-@cache_page(20)
+# @cache_page(20)
 def index(request):
     latest = Post.objects.all()
     paginator = Paginator(latest, 10)
