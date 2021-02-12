@@ -1,6 +1,4 @@
-from re import search
 from api.permissions import IsOwnerOrReadOnly
-from django.shortcuts import render
 from posts.models import Post, Group, User
 from rest_framework import viewsets
 from .serializers import GroupSerializers, PostSerializers, UserSerializer
