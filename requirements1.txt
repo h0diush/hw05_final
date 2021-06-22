@@ -81,7 +81,7 @@ ufw==0.36
 unattended-upgrades==0.1
 unify==0.5
 untokenize==0.1.1
-urllib3==1.26.2
+urllib3==1.26.5
 usb-creator==0.3.7
 wadllib==1.3.5
 xdg==5
