@@ -24,7 +24,7 @@ class Post(models.Model):
         verbose_name = 'Пост'
         verbose_name_plural = 'Посты'
 
-    text = models.TextField(verbose_name='Текст поста')
+    text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True)
