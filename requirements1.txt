@@ -17,7 +17,7 @@ dbus-python==1.2.16
 defer==1.0.6
 distro==1.5.0
 distro-info==1.0
-Django==3.2.1
+Django==3.2.15
 django-filter==2.4.0
 djangorestframework==3.12.4
 docformatter==1.4
